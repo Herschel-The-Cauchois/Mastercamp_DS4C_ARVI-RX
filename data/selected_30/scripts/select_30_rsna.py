@@ -5,16 +5,22 @@ from PIL import Image
 import numpy as np
 
 # =========================
-# Chemins du projet
+# Chemin du dataset téléchargé
 # =========================
 
-BASE_DIR = Path(__file__).resolve().parent
+RAW_DIR = Path(r"C:\Users\rania\Downloads\rsna-pneumonia-detection-challenge")
 
-CSV_PATH = BASE_DIR / "data" / "rsna_raw" / "stage_2_detailed_class_info.csv"
-DICOM_DIR = BASE_DIR / "data" / "rsna_raw" / "stage_2_train_images"
+CSV_PATH = RAW_DIR / "stage_2_detailed_class_info.csv"
+DICOM_DIR = RAW_DIR / "stage_2_train_images"
 
-OUT_IMG_DIR = BASE_DIR / "data" / "selected_30" / "images"
-OUT_CSV_PATH = BASE_DIR / "data" / "selected_30" / "labels_30.csv"
+# =========================
+# Chemin de sortie dans ton projet PyCharm
+# =========================
+
+PROJECT_DIR = Path(r"C:\Users\rania\PyCharmMiscProject")
+
+OUT_IMG_DIR = PROJECT_DIR / "data" / "selected_30" / "images"
+OUT_CSV_PATH = PROJECT_DIR / "data" / "selected_30" / "labels_30.csv"
 
 print("CSV cherché ici :")
 print(CSV_PATH)
@@ -22,26 +28,23 @@ print(CSV_PATH)
 print("\nDossier images cherché ici :")
 print(DICOM_DIR)
 
+print("\nLes 30 images seront créées ici :")
+print(OUT_IMG_DIR)
+
 # =========================
 # Vérifications
 # =========================
 
 if not CSV_PATH.exists():
-    raise FileNotFoundError(
-        f"\nFichier CSV introuvable :\n{CSV_PATH}\n\n"
-        "Vérifie que stage_2_detailed_class_info.csv est bien dans data/rsna_raw/"
-    )
+    raise FileNotFoundError(f"CSV introuvable : {CSV_PATH}")
 
 if not DICOM_DIR.exists():
-    raise FileNotFoundError(
-        f"\nDossier DICOM introuvable :\n{DICOM_DIR}\n\n"
-        "Vérifie que stage_2_train_images est bien extrait dans data/rsna_raw/"
-    )
+    raise FileNotFoundError(f"Dossier images introuvable : {DICOM_DIR}")
 
 OUT_IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 # =========================
-# Lecture du CSV RSNA
+# Lecture du fichier CSV
 # =========================
 
 df = pd.read_csv(CSV_PATH)
@@ -52,7 +55,7 @@ for col in required_columns:
     if col not in df.columns:
         raise ValueError(f"Colonne manquante dans le CSV : {col}")
 
-# Éviter les doublons
+# Supprimer les doublons
 df = df.drop_duplicates(subset=["patientId"])
 
 # =========================
@@ -67,11 +70,11 @@ mapping = {
 
 df["project_label"] = df["class"].map(mapping)
 
-print("\nClasses disponibles dans le CSV RSNA :")
+print("\nClasses disponibles dans RSNA :")
 print(df["class"].value_counts())
 
 # =========================
-# Sélection 10 images par classe
+# Sélectionner 10 images par classe
 # =========================
 
 selected_parts = []
@@ -121,12 +124,11 @@ for i, row in selected.iterrows():
     img = (img - img_min) / (img_max - img_min)
     img = (img * 255).astype(np.uint8)
 
-    pil_img = Image.fromarray(img)
+    image = Image.fromarray(img)
 
     filename = f"CXR_{index:03d}_{label}.png"
     output_path = OUT_IMG_DIR / filename
-
-    pil_img.save(output_path)
+    image.save(output_path)
 
     if label == "normal":
         image_quality = "bonne"
@@ -149,7 +151,7 @@ for i, row in selected.iterrows():
     })
 
 # =========================
-# Création du CSV final
+# Création du fichier labels_30.csv
 # =========================
 
 labels_df = pd.DataFrame(rows)
@@ -159,9 +161,9 @@ if len(labels_df) != 30:
 
 labels_df.to_csv(OUT_CSV_PATH, index=False, encoding="utf-8")
 
-print("\nSélection terminée avec succès.")
-print(f"Images sauvegardées dans : {OUT_IMG_DIR}")
-print(f"CSV sauvegardé dans : {OUT_CSV_PATH}")
+print("\n✅ Sélection terminée avec succès.")
+print(f"Images créées dans : {OUT_IMG_DIR}")
+print(f"CSV créé ici : {OUT_CSV_PATH}")
 
 print("\nRépartition finale :")
 print(labels_df["true_label"].value_counts())
