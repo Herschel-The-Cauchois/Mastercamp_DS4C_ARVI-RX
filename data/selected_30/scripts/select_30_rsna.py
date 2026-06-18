@@ -41,20 +41,22 @@ if not DICOM_DIR.exists():
 OUT_IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 # =========================
-# Lecture CSV
+# Lecture du CSV RSNA
 # =========================
 
 df = pd.read_csv(CSV_PATH)
 
 required_columns = ["patientId", "class"]
+
 for col in required_columns:
     if col not in df.columns:
         raise ValueError(f"Colonne manquante dans le CSV : {col}")
 
+# Éviter les doublons
 df = df.drop_duplicates(subset=["patientId"])
 
 # =========================
-# Mapping RSNA vers classes du projet
+# Mapping RSNA vers les classes du projet
 # =========================
 
 mapping = {
@@ -65,7 +67,7 @@ mapping = {
 
 df["project_label"] = df["class"].map(mapping)
 
-print("\nClasses disponibles dans le CSV :")
+print("\nClasses disponibles dans le CSV RSNA :")
 print(df["class"].value_counts())
 
 # =========================
@@ -146,6 +148,10 @@ for i, row in selected.iterrows():
         "comment": comment
     })
 
+# =========================
+# Création du CSV final
+# =========================
+
 labels_df = pd.DataFrame(rows)
 
 if len(labels_df) != 30:
@@ -153,7 +159,7 @@ if len(labels_df) != 30:
 
 labels_df.to_csv(OUT_CSV_PATH, index=False, encoding="utf-8")
 
-print("\n✅ Sélection terminée avec succès.")
+print("\nSélection terminée avec succès.")
 print(f"Images sauvegardées dans : {OUT_IMG_DIR}")
 print(f"CSV sauvegardé dans : {OUT_CSV_PATH}")
 
