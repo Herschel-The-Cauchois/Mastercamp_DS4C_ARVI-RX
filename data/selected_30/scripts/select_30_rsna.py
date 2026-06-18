@@ -1,20 +1,20 @@
-import os
+from pathlib import Path
 import pandas as pd
 import pydicom
 from PIL import Image
 import numpy as np
 
 # =========================
-# Chemins
+# Chemins du projet
 # =========================
 
-BASE_DIR = os.getcwd()
+BASE_DIR = Path(__file__).resolve().parent
 
-CSV_PATH = os.path.join(BASE_DIR, "data", "rsna_raw", "stage_2_detailed_class_info.csv")
-DICOM_DIR = os.path.join(BASE_DIR, "data", "rsna_raw", "stage_2_train_images")
+CSV_PATH = BASE_DIR / "data" / "rsna_raw" / "stage_2_detailed_class_info.csv"
+DICOM_DIR = BASE_DIR / "data" / "rsna_raw" / "stage_2_train_images"
 
-OUT_IMG_DIR = os.path.join(BASE_DIR, "data", "selected_30", "images")
-OUT_CSV_PATH = os.path.join(BASE_DIR, "data", "selected_30", "labels_30.csv")
+OUT_IMG_DIR = BASE_DIR / "data" / "selected_30" / "images"
+OUT_CSV_PATH = BASE_DIR / "data" / "selected_30" / "labels_30.csv"
 
 print("CSV cherché ici :")
 print(CSV_PATH)
@@ -26,19 +26,19 @@ print(DICOM_DIR)
 # Vérifications
 # =========================
 
-if not os.path.exists(CSV_PATH):
+if not CSV_PATH.exists():
     raise FileNotFoundError(
         f"\nFichier CSV introuvable :\n{CSV_PATH}\n\n"
         "Vérifie que stage_2_detailed_class_info.csv est bien dans data/rsna_raw/"
     )
 
-if not os.path.exists(DICOM_DIR):
+if not DICOM_DIR.exists():
     raise FileNotFoundError(
         f"\nDossier DICOM introuvable :\n{DICOM_DIR}\n\n"
         "Vérifie que stage_2_train_images est bien extrait dans data/rsna_raw/"
     )
 
-os.makedirs(OUT_IMG_DIR, exist_ok=True)
+OUT_IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 # =========================
 # Lecture CSV
@@ -54,7 +54,7 @@ for col in required_columns:
 df = df.drop_duplicates(subset=["patientId"])
 
 # =========================
-# Mapping RSNA -> Projet
+# Mapping RSNA vers classes du projet
 # =========================
 
 mapping = {
@@ -65,7 +65,6 @@ mapping = {
 
 df["project_label"] = df["class"].map(mapping)
 
-# Vérifier les classes disponibles
 print("\nClasses disponibles dans le CSV :")
 print(df["class"].value_counts())
 
@@ -89,7 +88,7 @@ print("\nSélection finale :")
 print(selected["project_label"].value_counts())
 
 # =========================
-# Conversion DICOM -> PNG
+# Conversion DICOM vers PNG
 # =========================
 
 rows = []
@@ -101,21 +100,20 @@ for i, row in selected.iterrows():
     label = row["project_label"]
     original_label = row["class"]
 
-    dicom_path = os.path.join(DICOM_DIR, patient_id + ".dcm")
+    dicom_path = DICOM_DIR / f"{patient_id}.dcm"
 
-    if not os.path.exists(dicom_path):
+    if not dicom_path.exists():
         print(f"Image manquante : {dicom_path}")
         continue
 
     ds = pydicom.dcmread(dicom_path)
     img = ds.pixel_array.astype(np.float32)
 
-    # Sécurité : éviter division par zéro
     img_min = np.min(img)
     img_max = np.max(img)
 
     if img_max == img_min:
-        print(f"Image ignorée car vide ou constante : {patient_id}")
+        print(f"Image ignorée car vide : {patient_id}")
         continue
 
     img = (img - img_min) / (img_max - img_min)
@@ -124,7 +122,7 @@ for i, row in selected.iterrows():
     pil_img = Image.fromarray(img)
 
     filename = f"CXR_{index:03d}_{label}.png"
-    output_path = os.path.join(OUT_IMG_DIR, filename)
+    output_path = OUT_IMG_DIR / filename
 
     pil_img.save(output_path)
 
@@ -148,14 +146,10 @@ for i, row in selected.iterrows():
         "comment": comment
     })
 
-# =========================
-# Création CSV final
-# =========================
-
 labels_df = pd.DataFrame(rows)
 
 if len(labels_df) != 30:
-    raise ValueError(f"Attention : seulement {len(labels_df)} images ont été générées au lieu de 30.")
+    raise ValueError(f"Seulement {len(labels_df)} images générées au lieu de 30.")
 
 labels_df.to_csv(OUT_CSV_PATH, index=False, encoding="utf-8")
 
