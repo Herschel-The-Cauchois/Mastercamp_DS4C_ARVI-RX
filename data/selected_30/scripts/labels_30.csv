@@ -1,0 +1,31 @@
+image_id,filename,true_label,image_quality,source,original_label,comment
+CXR_001,CXR_001_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_002,CXR_002_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_003,CXR_003_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_004,CXR_004_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_005,CXR_005_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_006,CXR_006_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_007,CXR_007_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_008,CXR_008_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_009,CXR_009_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_010,CXR_010_normal.png,normal,bonne,RSNA Pneumonia Detection Challenge,Normal,Cas normal selon le label source RSNA.
+CXR_011,CXR_011_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_012,CXR_012_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_013,CXR_013_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_014,CXR_014_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_015,CXR_015_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_016,CXR_016_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_017,CXR_017_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_018,CXR_018_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_019,CXR_019_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_020,CXR_020_suspected_opacity.png,suspected_opacity,bonne,RSNA Pneumonia Detection Challenge,Lung Opacity,Cas avec suspicion d'opacité selon le label source RSNA.
+CXR_021,CXR_021_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_022,CXR_022_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_023,CXR_023_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_024,CXR_024_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_025,CXR_025_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_026,CXR_026_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_027,CXR_027_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_028,CXR_028_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_029,CXR_029_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
+CXR_030,CXR_030_uncertain.png,uncertain,moyenne,RSNA Pneumonia Detection Challenge,No Lung Opacity / Not Normal,Cas anormal ou hors cible choisi pour tester la prudence du modèle.
