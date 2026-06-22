@@ -3,10 +3,10 @@ import pandas as pd
 from PIL import Image
 
 # Chemin réel du fichier CSV
-CSV_PATH = Path(r"C:\Users\rania\Desktop\labels_30.csv")
+CSV_PATH = Path(r".\labels_30.csv")
 
 # Chemin réel du dossier images
-IMG_DIR = Path(r"C:\Users\rania\Desktop\images")
+IMG_DIR = Path(r"..\images")
 
 EXPECTED_COLUMNS = {
     "image_id",

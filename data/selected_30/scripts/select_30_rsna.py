@@ -4,18 +4,13 @@ import pydicom
 from PIL import Image
 import numpy as np
 
-# =========================
-# Chemin du dataset téléchargé
-# =========================
+# dataset : https://www.kaggle.com/competitions/rsna-pneumonia-detection-challenge/data
 
-RAW_DIR = Path(r"C:\Users\rania\Downloads\rsna-pneumonia-detection-challenge")
+RAW_DIR = Path(r"..\images\dtst\rsna-pneumonia-detection-challenge")
 
 CSV_PATH = RAW_DIR / "stage_2_detailed_class_info.csv"
 DICOM_DIR = RAW_DIR / "stage_2_train_images"
 
-# =========================
-# Chemin de sortie dans ton projet PyCharm
-# =========================
 
 PROJECT_DIR = Path(r"C:\Users\rania\PyCharmMiscProject")
 

@@ -24,8 +24,11 @@ async def create_item(item: TestCreate, db: Session = Depends(get_db)):
 
 @app.post("/case/", response_model=CaseResponse)
 async def create_item(item: CaseCreate, db: Session = Depends(get_db)):
-    db_item = Case(**item.model_dump())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+    try:
+        db_item = Case(**item.model_dump())
+        db.add(db_item)
+        db.commit()
+        db.refresh(db_item)
+        return db_item
+    except ValueError as e:
+        raise HTTPException(status=406, detail="Item does not match validation criterions : " + str(e))
