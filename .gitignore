@@ -2,3 +2,6 @@
 *.dcm
 data/selected_30/images/dtst
 data/selected_30/images/dtst/rsna-pneumonia-detection-challenge
+*/**/__pycache__
+venv
+.env
