@@ -100,7 +100,8 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=422, detail="Unable to read file.")
     
     try:
-        with open("../data/uploads/"+file.filename, "a") as upload:
+        with open("../data/uploads/"+file.filename, "wb") as upload:
+            file.file.seek(0) # Puts cursor back at start of the file after reading
             shutil.copyfileobj(file.file, upload)
     except OSError as error:
         raise HTTPException(status_code=500, detail="File could not be uploaded correctly server side : " + str(error))
