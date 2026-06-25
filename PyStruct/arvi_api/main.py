@@ -5,10 +5,14 @@ import shutil
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from sqlalchemy.orm import Session
-from resources.models import *
+from arvi_api.resources.models import *
+from models.medgemma import MedGemma
+from openai import APIConnectionError, InternalServerError, NotFoundError
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
 UPLOAD_DIR = Path("tmp_uploads")
+
+model = MedGemma() # Initializes model relay for the API
 
 @app.get("/")
 def root() -> dict:
@@ -31,7 +35,7 @@ async def create_case(item: CaseCreate, db: Session = Depends(get_db)):
         db.refresh(db_item)
         return db_item
     except ValueError as e:
-        raise HTTPException(status=406, detail="Item does not match validation criterions : " + str(e))
+        raise HTTPException(status_code=406, detail="Item does not match validation criterions : " + str(e))
     
 @app.post("/prompts/", response_model=PromptsResponse)
 async def create_prompt(item: PromptsCreate, db: Session = Depends(get_db)):
@@ -56,3 +60,23 @@ async def create_eval(item: EvaluationsCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+@app.post("/analyze/")
+async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiography"
+    try:
+        with open("./models/prompt.txt", "r") as file:
+            prompt = file.read()
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Missing internal prompt file.")
+    path_dump = dict(**item.model_dump())["img_path"]
+    try: 
+        response = model.generate(path_dump, prompt)
+    except FileNotFoundError:
+        raise HTTPException(status_code=412, detail="File has not been transferred to the server.")
+    except APIConnectionError:
+        raise HTTPException(status_code=503, detail="Medgemma API is not accessible.")
+    except InternalServerError:
+        raise HTTPException(status_code=503, detail="Medgemma API returned service unavailable")
+    except NotFoundError:
+        raise HTTPException(status_code=503, detail="Medgemma API returned Not Found Error")
+    return response

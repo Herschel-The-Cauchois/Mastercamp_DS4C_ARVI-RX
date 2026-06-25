@@ -1,10 +1,12 @@
 <template>
-    <Feedback routed_image="TriggerOpTypes.png" :analysis="dummy"/>
+    <Feedback v-if="upload_mode.value" routed_image="TriggerOpTypes.png" :analysis="dummy"/>
 </template>
 
 <script setup>
 import Feedback from '../components/feedback.vue';
 import { ref } from 'vue'
+
+const upload_mode = ref(false)
 
 const dummy = {
     "predicted_class": "normal | suspected_opacity | uncertain",

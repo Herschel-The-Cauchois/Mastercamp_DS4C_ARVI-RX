@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Database setup is done in this file, else the table models don't work
-DATABASE_URL = "sqlite:///../../sqlite/arvi_rx.db"
+DATABASE_URL = "sqlite:///../sqlite/arvi_rx.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -162,6 +162,11 @@ class EvaluationsResponse(BaseModel):
     created_at : datetime
 
 Base.metadata.create_all(bind=engine) # This line must always be last in order to be able to create and synchronize db schema
+
+# Non db linked pydantic models
+
+class AnalysisRequest(BaseModel):
+    img_path : str
 
 def get_db():
     db = SessionLocal()
