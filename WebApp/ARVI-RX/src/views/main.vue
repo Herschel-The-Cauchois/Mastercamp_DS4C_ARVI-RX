@@ -1,12 +1,14 @@
 <template>
-    <Feedback v-if="upload_mode.value" routed_image="TriggerOpTypes.png" :analysis="dummy"/>
+    <RadioForm v-if="upload_mode"/>
+    <Feedback v-if="!upload_mode" routed_image="TriggerOpTypes.png" :analysis="dummy"/>
 </template>
 
 <script setup>
 import Feedback from '../components/feedback.vue';
+import RadioForm from '../components/radioform.vue'
 import { ref } from 'vue'
 
-const upload_mode = ref(false)
+const upload_mode = ref(true)
 
 const dummy = {
     "predicted_class": "normal | suspected_opacity | uncertain",

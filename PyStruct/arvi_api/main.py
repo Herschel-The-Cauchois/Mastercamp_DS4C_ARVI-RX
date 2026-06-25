@@ -8,9 +8,14 @@ from sqlalchemy.orm import Session
 from arvi_api.resources.models import *
 from models.medgemma import MedGemma
 from openai import APIConnectionError, InternalServerError, NotFoundError
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
 UPLOAD_DIR = Path("tmp_uploads")
+
+origins = ["http://localhost:5173"]
+
+app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 model = MedGemma() # Initializes model relay for the API
 
@@ -80,3 +85,24 @@ async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiogra
     except NotFoundError:
         raise HTTPException(status_code=503, detail="Medgemma API returned Not Found Error")
     return response
+
+@app.put("/analyze/") # image file uploading
+async def upload_file(file: UploadFile = File(...)):
+    print(file.filename)
+    print(file.content_type)
+
+    if file.content_type != "image/png":
+        raise HTTPException(status_code=422, detail="Only png images are accepted for this app.")
+
+    try:
+        contents = await file.read()
+    except Exception:
+        raise HTTPException(status_code=422, detail="Unable to read file.")
+    
+    try:
+        with open("../data/uploads/"+file.filename, "a") as upload:
+            shutil.copyfileobj(file.file, upload)
+    except OSError as error:
+        raise HTTPException(status_code=500, detail="File could not be uploaded correctly server side : " + str(error))
+
+    return { "filename": file.filename, "size": len(contents), "status": "OK" }
