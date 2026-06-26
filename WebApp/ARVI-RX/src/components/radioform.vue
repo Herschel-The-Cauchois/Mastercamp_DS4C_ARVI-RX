@@ -24,6 +24,10 @@
 	import axios from 'axios'
 	import { useRouter } from 'vue-router'
 
+    const emit = defineEmits({
+        displayFeedback: null //i.e. no validation condition
+    })
+
     const ImproperFileImport = ref(false) //Shows up error message if addFile fails, managed out of final validation errors
 
     const NoFile = ref(false)
@@ -36,6 +40,7 @@
     const ErrorVariables = [NoFile, NotPermittedFile, Unreadable, NotUploaded, UploadError, ModelNotAvailable, Unknown]
 
     const fileHandler = ref(undefined)
+    const path_radio = ref(undefined)
 
     function addFile(e) {
         const file = e.target.files[0];
@@ -73,15 +78,21 @@
             data: formSubmission //Crude because axios serialization messes up file object uploads, so no pydantic model use to translate back a sent JSON object
         }).then(res => {
             console.log(res.data)
-            console.log("Model response :")
+            console.log("Model response :") 
+            path_radio.value = "../data/uploads/" + res.data.filename
             axios({
                 method: "post",
                 url: "http://127.0.0.1:8000/analyze/",
                 data: { //HEre JSON used since we made a pydantic model that works to read this !
-                    img_path: "../data/uploads/" + res.data.filename
+                    img_path: path_radio.value
                 }
             }).then(res => {
                 console.log(res.data)
+                try {
+                    emit('displayFeedback', [res.data, path_radio.value]) //returns info upwards to main view
+                } catch (e) {
+                    console.log("Emit error : " + e)
+                }
             }).catch(err => {
                 console.log(err.response)
                 if (err.status === 412) {
@@ -109,5 +120,7 @@
             }
         })
     }
+
+    //routine f° to be called when above is done to log on the server the file upload, result and everything
 
 </script>

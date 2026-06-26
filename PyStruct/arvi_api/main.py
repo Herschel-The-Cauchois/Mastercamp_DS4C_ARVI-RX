@@ -9,8 +9,10 @@ from arvi_api.resources.models import *
 from models.medgemma import MedGemma
 from openai import APIConnectionError, InternalServerError, NotFoundError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
+app.mount("/uploads", StaticFiles(directory="../data/uploads"), name="uploads") # Exposes folder so uploads can be displayed on feedback
 UPLOAD_DIR = Path("tmp_uploads")
 
 origins = ["http://localhost:5173"]
@@ -88,8 +90,8 @@ async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiogra
 
 @app.put("/analyze/") # image file uploading
 async def upload_file(file: UploadFile = File(...)):
-    print(file.filename)
-    print(file.content_type)
+    # print(file.filename)
+    # print(file.content_type) test
 
     if file.content_type != "image/png":
         raise HTTPException(status_code=422, detail="Only png images are accepted for this app.")
