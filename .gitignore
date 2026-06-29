@@ -1,0 +1,11 @@
+*.png
+*.dcm
+data/selected_30/images/dtst
+data/selected_30/images/dtst/rsna-pneumonia-detection-challenge
+*/**/__pycache__
+*/__pycache__
+venv
+.env
+data/uploads/*
+PyStruct/arvi_api/__pycache__
+PyStruct/arvi_api/resources/__pycache__
