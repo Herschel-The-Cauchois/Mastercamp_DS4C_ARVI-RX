@@ -80,6 +80,8 @@
             console.log(res.data)
             console.log("Model response :") 
             path_radio.value = "../data/uploads/" + res.data.filename
+            let model_req_start = performance.now()
+            let isDuplicate = res.data.status === "Duplicate" ? true : false
             axios({
                 method: "post",
                 url: "http://127.0.0.1:8000/analyze/",
@@ -90,7 +92,8 @@
                 console.log(res.data)
                 try {
                     emit('displayFeedback', [res.data, path_radio.value]) //returns info upwards to main view
-                    logging_routine(res.data, path_radio.value)
+                    let model_req_end = performance.now()
+                    logging_routine(res.data, path_radio.value, model_req_end - model_req_start, isDuplicate)
                 } catch (e) {
                     console.log("Emit error : " + e)
                 }
@@ -123,8 +126,59 @@
     }
 
     //routine f° to be called when above is done to log on the server the file upload, result and everything
-    function logging_routine(feedback, path) {
-        axios({}).then(res => {}).catch(err => {})
+    function logging_routine(feedback, path, latency, isDuplicate) {
+        if (isDuplicate) {
+            console.log("Duplicate to do")
+        } else {
+        axios({
+            method: "post",
+            url: "http://127.0.0.1:8000/case/",
+            data: {
+                img_path: path,
+                source: "user upload",
+                ground_truth_label: "not_annotated",
+                split: "test",
+                notes: "No comment."
+            }
+        }).then(res => {
+            console.log(res.data)
+            axios({
+                method: "post",
+                url: "http://127.0.0.1:8000/runs/",
+                data: {
+                    case_id: res.data.id,
+                    prompt_id: "2", //Linked to current only listed prompt in our folders
+                    model_used: "Medgemma", //possible multi model interface too for the future ?
+                    prediction_json: JSON.stringify(feedback),
+                    predicted_class: feedback.predicted_class,
+                    confidence: feedback.confidence,
+                    latency: latency
+                }
+            }).then(res => {
+                console.log(res.data)
+                axios({
+                    method: "post",
+                    url: "http://127.0.0.1:8000/eval/",
+                    data: {
+                        run_id: res.data.id,
+                        true_label_case: res.data.case_id,
+                        is_correct: false, //False by default until manual review
+                        error_type: "To determine",
+                        comments: "No Comments."
+                    }
+                }).then(res => {
+                    console.log(res.data)
+                }).catch(err => {
+                    console.log(err.response)
+                })
+            }).catch(err => {
+                console.log(err.response)
+            })
+        }).catch(err => {
+            console.log("New case logging error : " + err)
+        })
+    }
+
     }
 
 </script>

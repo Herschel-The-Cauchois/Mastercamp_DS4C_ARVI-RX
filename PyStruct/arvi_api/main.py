@@ -10,6 +10,7 @@ from models.medgemma import MedGemma
 from openai import APIConnectionError, InternalServerError, NotFoundError, BadRequestError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
 app.mount("/uploads", StaticFiles(directory="../data/uploads"), name="uploads") # Exposes folder so uploads can be displayed on feedback
@@ -103,11 +104,23 @@ async def upload_file(file: UploadFile = File(...)):
     except Exception:
         raise HTTPException(status_code=422, detail="Unable to read file.")
     
+    override_path = "" # Addendum to differenciate duplicates in name but not in content
+    msg = ""
+    
     try:
-        with open("../data/uploads/"+file.filename, "wb") as upload:
-            file.file.seek(0) # Puts cursor back at start of the file after reading
-            shutil.copyfileobj(file.file, upload)
-    except OSError as error:
-        raise HTTPException(status_code=500, detail="File could not be uploaded correctly server side : " + str(error))
+        with open("../data/uploads/"+file.filename, "rb") as match:
+            file.file.seek(0)
+            passover_var = match.read()
+            if passover_var == contents:
+                msg = "Duplicate" # Sends special message for front to handle
+            else:
+                override_path = "_" + datetime.now().strftime("%y-%m-%D_%H-%M-%S")
+    except FileNotFoundError:
+        try:
+            with open("../data/uploads/"+file.filename+override_path, "wb") as upload:
+                file.file.seek(0) # Puts cursor back at start of the file after reading
+                shutil.copyfileobj(file.file, upload)
+        except OSError as error:
+            raise HTTPException(status_code=500, detail="File could not be uploaded correctly server side : " + str(error))
 
-    return { "filename": file.filename, "size": len(contents), "status": "OK" }
+    return { "filename": file.filename, "size": len(contents), "status": "OK" if msg == "" else msg }

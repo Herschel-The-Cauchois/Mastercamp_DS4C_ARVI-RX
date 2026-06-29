@@ -1,5 +1,5 @@
 """This file exists solely for the purpose of storing model classes and other Base models outside of the main file."""
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.types import *
@@ -44,7 +44,7 @@ class CaseCreate(BaseModel):
     @field_validator("ground_truth_label")
     @classmethod
     def validate_label(cls, value):
-        allowed = {"normal", "suspected_opacity", "uncertain"}
+        allowed = {"normal", "suspected_opacity", "uncertain", "not_annotated"} # Not annotated for further label manual confirmation
         if value not in allowed:
             raise ValueError(f"ground_truth_label must be among {allowed}")
         return value
@@ -77,7 +77,7 @@ class CaseResponse(BaseModel):
     split : str
     notes : str
 
-class Prompts(Base):
+class Prompts(Base): # Add prompting display and add interface ?
     __tablename__ = "prompts"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), nullable=False)
