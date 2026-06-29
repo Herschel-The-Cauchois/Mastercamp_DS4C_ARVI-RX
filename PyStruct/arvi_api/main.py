@@ -7,7 +7,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from sqlalchemy.orm import Session
 from arvi_api.resources.models import *
 from models.medgemma import MedGemma
-from openai import APIConnectionError, InternalServerError, NotFoundError
+from openai import APIConnectionError, InternalServerError, NotFoundError, BadRequestError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -86,6 +86,8 @@ async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiogra
         raise HTTPException(status_code=503, detail="Medgemma API returned service unavailable")
     except NotFoundError:
         raise HTTPException(status_code=503, detail="Medgemma API returned Not Found Error")
+    except BadRequestError:
+        raise HTTPException(status_code=503, detail="Medgemma API endpoint is paused")
     return response
 
 @app.put("/analyze/") # image file uploading

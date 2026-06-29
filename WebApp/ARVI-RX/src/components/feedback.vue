@@ -9,7 +9,10 @@
         <br/>
         <div class="textual-info">
             <p class="justification">{{ analysis.justification }}</p>
-            <p><span class="info-begin">Visual evidences :</span> <span class="info" v-for="evidence in analysis.visual_evidence">{{ evidence }}</span></p>
+            <p><span class="info-begin">Visual evidences :</span> </p>
+            <ul>
+                <li v-for="evidence in analysis.visual_evidence"><span class="info">{{ evidence }}. </span></li>
+            </ul>
             <p><span class="warning-header">Beware ! </span> <span class="warnings" v-for="warning in analysis.warnings">{{ warning }}</span></p>
         </div>
     </div>

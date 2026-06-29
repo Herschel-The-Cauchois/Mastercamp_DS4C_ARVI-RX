@@ -90,6 +90,7 @@
                 console.log(res.data)
                 try {
                     emit('displayFeedback', [res.data, path_radio.value]) //returns info upwards to main view
+                    logging_routine(res.data, path_radio.value)
                 } catch (e) {
                     console.log("Emit error : " + e)
                 }
@@ -122,5 +123,8 @@
     }
 
     //routine f° to be called when above is done to log on the server the file upload, result and everything
+    function logging_routine(feedback, path) {
+        axios({}).then(res => {}).catch(err => {})
+    }
 
 </script>
