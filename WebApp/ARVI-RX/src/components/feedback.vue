@@ -13,7 +13,7 @@
             <ul>
                 <li v-for="evidence in analysis.visual_evidence"><span class="info">{{ evidence }}. </span></li>
             </ul>
-            <p><span class="warning-header">Beware ! </span> <span class="warnings" v-for="warning in analysis.warnings">{{ warning }}</span></p>
+            <p><span class="warning-header">Beware ! </span> <span class="warnings" v-for="warning in analysis.warnings"> {{ warning }}&nbsp;</span></p>
         </div>
     </div>
 </template>
