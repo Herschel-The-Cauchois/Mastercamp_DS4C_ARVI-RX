@@ -89,8 +89,8 @@ async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiogra
         raise HTTPException(status_code=503, detail="Medgemma API is not accessible.")
     except InternalServerError:
         raise HTTPException(status_code=503, detail="Medgemma API returned service unavailable")
-    except NotFoundError:
-        raise HTTPException(status_code=503, detail="Medgemma API returned Not Found Error")
+    except NotFoundError as e:
+        raise HTTPException(status_code=503, detail="Medgemma API returned Not Found Error : " + str(e))
     except BadRequestError:
         raise HTTPException(status_code=503, detail="Medgemma API endpoint is paused")
     return response
