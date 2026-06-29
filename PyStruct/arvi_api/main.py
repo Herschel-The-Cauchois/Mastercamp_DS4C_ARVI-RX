@@ -6,6 +6,8 @@ from pathlib import Path
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from sqlalchemy.orm import Session
 from arvi_api.resources.models import *
+from arvi_api.resources.validators import *
+from arvi_api.resources.responses import *
 from models.medgemma import MedGemma
 from openai import APIConnectionError, InternalServerError, NotFoundError, BadRequestError
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,14 +27,6 @@ model = MedGemma() # Initializes model relay for the API
 @app.get("/")
 def root() -> dict:
     return {"status": "OK", "scope": "DO NOT USE FOR MEDICAL DIAGNOSIS, THIS IS A PROJECT FOR EDUCATIONAL PURPOSES"}
-
-@app.post("/test/", response_model=TestResponse)
-async def create_test(item: TestCreate, db: Session = Depends(get_db)):
-    db_item = Test(**item.model_dump())
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
 
 @app.post("/case/", response_model=CaseResponse)
 async def create_case(item: CaseCreate, db: Session = Depends(get_db)):
