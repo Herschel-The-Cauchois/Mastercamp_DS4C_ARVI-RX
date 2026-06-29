@@ -45,6 +45,16 @@ async def create_case(item: CaseCreate, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=406, detail="Item does not match validation criterions : " + str(e))
     
+@app.get("/case/req", response_model=CaseResponse) # Sadly contrary to node, fastapi doesn't support http keywords other than PUT, POST, GET, DELETE
+async def lookup_case(path: str, db: Session = Depends(get_db)):
+    try:
+        element = db.query(Case).filter(Case.img_path == path).first() # Try to retrieve first element whose path matches with sent patch
+        if element is None:
+            raise HTTPException(status_code=404, detail="Case match corresponding to duplicate path not found.")
+        return element
+    except BaseException as e:
+        raise HTTPException(status_code=500, detail="An unknown error has occured : " + e)
+    
 @app.post("/prompts/", response_model=PromptsResponse)
 async def create_prompt(item: PromptsCreate, db: Session = Depends(get_db)):
     db_item = Prompts(**item.model_dump())

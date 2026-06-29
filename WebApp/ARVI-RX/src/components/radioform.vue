@@ -129,6 +129,45 @@
     function logging_routine(feedback, path, latency, isDuplicate) {
         if (isDuplicate) {
             console.log("Duplicate to do")
+            axios({
+                method: "get", //Retrieves duplicate image case id and continues the routine with it
+                url: "http://127.0.0.1:8000/case/req",
+                params: { path: path }
+            }).then(res => {
+                console.log(res.data)
+                axios({
+                    method: "post",
+                    url: "http://127.0.0.1:8000/runs/",
+                    data: {
+                        case_id: res.data.id,
+                        prompt_id: "2", //Linked to current only listed prompt in our folders
+                        model_used: "Medgemma", //possible multi model interface too for the future ?
+                        prediction_json: JSON.stringify(feedback),
+                        predicted_class: feedback.predicted_class,
+                        confidence: feedback.confidence,
+                        latency: latency
+                    }
+                }).then(res => {
+                    console.log(res.data)
+                    axios({
+                        method: "post",
+                        url: "http://127.0.0.1:8000/eval/",
+                        data: {
+                            run_id: res.data.id,
+                            true_label_case: res.data.case_id,
+                            is_correct: false, //False by default until manual review
+                            error_type: "To determine",
+                            comments: "No Comments."
+                        }
+                    }).then(res => {
+                        console.log(res.data)
+                    }).catch(err => {
+                        console.log(err.response)
+                    })
+                })
+            }).catch(err => {
+                console.log(err.response)
+            })
         } else {
         axios({
             method: "post",
