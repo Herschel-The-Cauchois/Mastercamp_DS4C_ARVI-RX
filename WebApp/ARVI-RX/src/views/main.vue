@@ -1,7 +1,11 @@
 <template>
-    <RadioForm v-if="upload_mode" @displayFeedback="feedMode($event)"/> <!-- $event represents event data -->
-    <Feedback v-if="!upload_mode" :routed_image="img_disp" :analysis="details"/>
-    <!-- Add back to upload button -->
+
+    <main> <!-- Only part of the webapp deserving that tag, since it is the main functionality -->
+        <RadioForm v-if="upload_mode" @displayFeedback="feedMode($event)"/> <!-- $event represents event data -->
+        <Feedback v-if="!upload_mode" :routed_image="img_disp" :analysis="details"/>
+        <button id="reset" v-if="!upload_mode" @click="uploadMode()">Return to upload</button>
+    </main>
+
 </template>
 
 <script setup>
@@ -35,6 +39,8 @@ function feedMode(e) {
 
 function uploadMode() {
     upload_mode.value = true
+    img_disp.value = "TruthOrDare.png"
+    details.value = dummy
 }
 
 </script>

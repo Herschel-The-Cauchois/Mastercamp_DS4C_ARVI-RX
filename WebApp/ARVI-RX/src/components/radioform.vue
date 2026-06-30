@@ -1,7 +1,8 @@
 <template>
     <div class="fileform">
         <h2>Send your radiography !</h2>
-        <p class="rassurance">Your data is kept private and will stay between you and us.</p>
+        <p id="rassurance">Your data is kept private and will stay between you and us.</p>
+        <mark>All you have to do is upload a file via the given button, click Analyze, and wait for the model response.</mark>
         <!-- Add small tutorial for the user -->
         <form action="javascript:;" @submit.prevent="tryAnalyze" enctype="multipart/form-data">
             <label for="radio">You may upload your own file : </label>
