@@ -21,33 +21,84 @@ class MedGemma:
             api_key=HF_ACCESS_TOKEN
         )
     
-    def build_message(self, image_path: str, prompt: str):
-
-        def pil_to_base64(image: Image.Image):
+    def build_message(self, image: str | list[str], prompt: str):
+        def pil_to_base64(img: Image.Image) -> str:
             buffer = BytesIO()
-            image.save(buffer, format="PNG")
+            img.save(buffer, format="PNG")
             return base64.b64encode(buffer.getvalue()).decode("utf-8")
-        
-        image = Image.open(image_path).convert("RGB")
-        image_b64 = pil_to_base64(image)
-        
+
+        if isinstance(image, str):
+            image_paths = [image]
+        else:
+            image_paths = image
+
+        content = []
+
+        for image_path in image_paths:
+            img = Image.open(image_path).convert("RGB")
+            image_b64 = pil_to_base64(img)
+
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/png;base64,{image_b64}"
+                }
+            })
+
+        content.append({
+            "type": "text",
+            "text": prompt
+        })
+
         return [
             {
                 "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/png;base64,{image_b64}"
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "text": prompt
-                    }
-                ]
+                "content": content
             }
         ]
+
+
+    def batch_mode(self, images: list[str], prompt: str, max_tokens: int = 1024):
+        def parse_json_response(response: str) -> list[dict]:
+            response = response.strip()
+            match = re.search(r"\[\s*{.*}\s*\]", response, re.DOTALL)
+            if not match:
+                raise ValueError(f"No JSON array found in response:\n{response}")
+
+            json_str = match.group(0)
+
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Invalid JSON: {e}\nExtracted JSON:\n{json_str}")
+
+            if not isinstance(data, list):
+                raise ValueError("The extracted JSON is not a list.")
+
+            return data
+
+        batch_prompt = f"""
+        {prompt}
+
+        Batch mode:
+        - I will provide you with {len(images)} images.
+        - Return ONLY a valid JSON array.
+        - The JSON array must contain exactly {len(images)} objects.
+        - Each object must correspond to one image.
+        - Keep the same order as the images.
+        - Do not return markdown.
+        - Do not wrap the JSON in ```json.
+        """
+
+        chat_completion = self.client.chat.completions.create(
+            model=MODEL_URI,
+            messages=self.build_message(images, batch_prompt),
+            stream=False,
+            max_tokens=max_tokens
+        )
+
+        content = chat_completion.choices[0].message.content
+        return parse_json_response(content)
 
     def generate(self, image_path: str, prompt: str, max_tokens: int = 512):
         def parse_json_response(response: str) -> dict:

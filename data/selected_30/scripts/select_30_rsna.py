@@ -8,7 +8,7 @@ import numpy as np
 # Chemin du dataset téléchargé
 # =========================
 
-RAW_DIR = Path(r"C:\Users\rania\Downloads\rsna-pneumonia-detection-challenge")
+RAW_DIR = Path(r"rsna-pneumonia-detection-challenge")
 
 CSV_PATH = RAW_DIR / "stage_2_detailed_class_info.csv"
 DICOM_DIR = RAW_DIR / "stage_2_train_images"
