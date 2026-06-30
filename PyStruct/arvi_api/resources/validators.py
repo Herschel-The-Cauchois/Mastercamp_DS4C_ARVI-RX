@@ -78,6 +78,12 @@ class EvaluationsCreate(BaseModel):
     error_type : str
     comments : str
 
+class EvaluationsUpdate(BaseModel):
+    id : int
+    new_correct : int
+    new_type : str
+    new_comment : str
+
 # Non db linked pydantic models
 
 class AnalysisRequest(BaseModel):

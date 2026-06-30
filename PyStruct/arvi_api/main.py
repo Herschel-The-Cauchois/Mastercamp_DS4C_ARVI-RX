@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from arvi_api.resources.models import *
 from arvi_api.resources.validators import *
 from arvi_api.resources.responses import *
@@ -72,6 +73,41 @@ async def create_eval(item: EvaluationsCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+@app.get("/eval/")
+async def request_eval(db: Session = Depends(get_db)):
+    try:
+        result = db.execute(text("SELECT evals.id, evals.run_id, cases.ground_truth_label, cases.img_path, runs.model_used, runs.confidence, runs.latency, evals.is_correct, evals.error_type, evals.comments FROM \"evaluations\" AS evals INNER JOIN \"runs\" AS runs ON evals.run_id = runs.id INNER JOIN \"case\" AS cases ON evals.true_label_case = cases.id ORDER BY evals.error_type, evals.created_at;")).mappings().all() # Omega long sql request it wouldn't been hard to translate in python
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error with your request has happened : " + str(e))
+    
+@app.patch("/eval/")
+async def update_eval(item: EvaluationsUpdate, db: Session = Depends(get_db)):
+    try:
+        new_data = dict(**item.model_dump())
+        query = text("""UPDATE evaluations SET is_correct = :is_correct, error_type = :error_type, comments = :comments WHERE id = :id;""")
+        result = db.execute(query, { "is_correct": new_data["new_correct"], "error_type": new_data["new_type"], "comments": new_data["new_comment"], "id": new_data["id"] })
+        db.commit() # DO NOT FORGET !!!!! else doesn't save
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error with your request has happened : " + str(e)) 
+    
+@app.delete("/eval/")
+async def delete_eval(item: EvaluationsUpdate, db: Session = Depends(get_db)):
+    try:
+        del_data = dict(**item.model_dump())
+        query_fetch = text("SELECT run_id FROM evaluations WHERE id = :id")
+        query_eval = text("DELETE FROM evaluations WHERE id = :id")
+        query_run = text("DELETE FROM runs WHERE id = :id")
+        result1 = db.execute(query_fetch, { "id": del_data["id"] }).mappings().all()
+        print(result1)
+        result2 = db.execute(query_run,  { "id": result1[0]["run_id"] }) # Always one lone tuple in a list anyway
+        result3 = db.execute(query_eval, { "id": del_data["id"] })
+        db.commit()
+        return [result1, result2, result3]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error with your request has happened : " + str(e))
 
 @app.post("/analyze/")
 async def jarvis_analyzer(item: AnalysisRequest): # "jarvis, analyze my radiography"
