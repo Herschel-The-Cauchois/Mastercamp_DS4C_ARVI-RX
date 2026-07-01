@@ -221,7 +221,7 @@ async def check_credentials(credentials: CredentialsRequest, db: Session = Depen
         if user["is_valid"] == 0:
             raise HTTPException(status_code=403, detail="Expired Credentials")
         try:
-            data = { "id": user["id"]}
+            data = { "id": user["id"] }
             to_encode = data.copy()
             expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             to_encode.update({"exp": expire})

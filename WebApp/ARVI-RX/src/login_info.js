@@ -1,7 +1,7 @@
 import { jwtDecode } from 'jwt-decode'
 import { defineProps, ref } from 'vue'
 
-var user_login = ref({isLoggedIn: false, username: "None", id: "None"});
+var user_login = ref({isLoggedIn: false, id: "None"});
 
 function LoadUserLogin() {
 	// get token from localstorage
@@ -19,7 +19,7 @@ function LoadUserLogin() {
 }
 
 function UnloadUserLogin() {
-	user_login.value = {isLoggedIn: false, isAdmin: false, isProvider:false, username: "None", id: "None"};
+	user_login.value = {isLoggedIn: false, id: "None"};
 }
 
 export {user_login, LoadUserLogin, UnloadUserLogin}
