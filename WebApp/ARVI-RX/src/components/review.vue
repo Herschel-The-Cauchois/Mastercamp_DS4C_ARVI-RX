@@ -2,7 +2,7 @@
     <tr>
         <td>{{ review.run_id }}</td>
         <td>{{ review.ground_truth_label }}</td>
-        <td>{{ review.img_path }}</td>
+        <td><a href="" @click.prevent="loadImg(review.img_path)"><img src="../assets/image.svg"/> Access Image</a></td>
         <td>{{ review.model_used }}</td>
         <td>{{ review.confidence }}</td>
         <td>{{ review.latency }}</td>
@@ -86,6 +86,21 @@
             console.log(res.data)
             emit('refreshTable') //Signals view to refresh redoing get
             console.log("emitted")
+        }).catch(err => {
+            console.log(err.response)
+        })
+    }
+
+    function loadImg(path) {
+        axios({
+            method: "get",
+            url: "http://127.0.0.1:8000/analyze/",
+            params: { path: path },
+            responseType: "blob"
+        }).then(res => {
+            const url = URL.createObjectURL(res.data); //Creates a local url that masks internal server tree
+            window.open(url, "_blank"); //opens new tab with that url, displaying img on full screen
+            setTimeout(() => URL.revokeObjectURL(url), 1000); //timer to not leave that url in memory too much
         }).catch(err => {
             console.log(err.response)
         })

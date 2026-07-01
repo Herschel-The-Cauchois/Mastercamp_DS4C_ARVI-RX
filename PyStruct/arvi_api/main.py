@@ -13,11 +13,12 @@ from models.medgemma import MedGemma
 from openai import APIConnectionError, InternalServerError, NotFoundError, BadRequestError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from datetime import datetime
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
 app.mount("/uploads", StaticFiles(directory="../data/uploads"), name="uploads") # Exposes folder so uploads can be displayed on feedback
-UPLOAD_DIR = Path("tmp_uploads")
+UPLOAD_DIR = Path("../data/uploads/")
 
 origins = ["http://localhost:5173"]
 
@@ -164,3 +165,19 @@ async def upload_file(file: UploadFile = File(...)):
             raise HTTPException(status_code=500, detail="File could not be uploaded correctly server side : " + str(error))
 
     return { "filename": file.filename, "size": len(contents), "status": "OK" if msg == "" else msg }
+
+@app.get("/analyze/")
+async def retrieve_file(path: str):
+    try:
+        fp = Path(path)
+        if not fp.resolve().is_relative_to(UPLOAD_DIR.resolve()):
+            raise HTTPException(status_code=403, detail="Given path not in expected directory")
+        if not fp.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        filename = path.split("/")
+        filename = filename[len(filename)-1]
+        return FileResponse(fp, filename=filename, media_type="image/png") 
+    except HTTPException as HTTP: # Pass HTTP exceptions as already handled...
+        raise HTTPException(HTTP.status_code, detail=HTTP.detail)
+    except Exception as e: # To handle then all other types
+        raise HTTPException(status_code=500, detail="An unknown error has occured : " + str(e))
