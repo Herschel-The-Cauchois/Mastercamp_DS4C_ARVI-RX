@@ -20,6 +20,11 @@ function LoadUserLogin() {
 
 function UnloadUserLogin() {
 	user_login.value = {isLoggedIn: false, id: "None"};
+	try {
+		localStorage.removeItem("user")
+	} catch(error) {
+		console.log(error)
+	}
 }
 
 export {user_login, LoadUserLogin, UnloadUserLogin}

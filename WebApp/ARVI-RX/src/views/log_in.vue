@@ -64,10 +64,10 @@ function tryLog() {
             localStorage.removeItem("user") //Removes token if was already logged in, to prevent simultaneous sessions
         }
         localStorage.setItem("user", res.data.token)
-	    LoadUserLogin()
-        if (user_login.value.isLoggedIn) {
+        try {
+	        LoadUserLogin()
             router.push("/dashboard")
-        } else {
+        } catch(error) {
             LogInFailed.value = true
         }
     }).catch (err => {

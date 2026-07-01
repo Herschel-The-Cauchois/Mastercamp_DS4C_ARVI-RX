@@ -4,6 +4,7 @@ import DashView from '../views/dashboard.vue'
 import ReView from '../views/reviews.vue'
 import AnnotationView from '../views/caseannotation.vue'
 import LogView from '../views/log_in.vue'
+import { jwtDecode } from 'jwt-decode'
 
 const routes = [
     {
@@ -53,6 +54,19 @@ const router = createRouter({
     routes
 })
 
-//Here router guards if needed
+router.beforeEach((to, from, next) => { 
+    if (to.matched.some(record => record.meta.requires_auth)) { 
+        if (localStorage.getItem('user') == null) { 
+            next({  
+                path: '/connect', 
+                params: { nextUrl: to.fullPath } //If not connect, redirects automatically to connect page
+            }) 
+        } else {
+            next()
+        }
+    } else { 
+        next() 
+    }
+})
 
 export default router
