@@ -35,3 +35,12 @@ class EvaluationsResponse(BaseModel):
     error_type : str
     comments : str
     created_at : datetime
+
+class UserResponse(BaseModel):
+    id : int
+    email : str
+    password : str
+    is_valid : int
+
+class AuthResponse(BaseModel):
+    token : str

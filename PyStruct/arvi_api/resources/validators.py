@@ -1,6 +1,7 @@
 from pathlib import Path
 import json
 from pydantic import BaseModel, field_validator
+import re
 
 class CaseCreate(BaseModel):
     img_path : str
@@ -84,7 +85,36 @@ class EvaluationsUpdate(BaseModel):
     new_type : str
     new_comment : str
 
+class UserCreate(BaseModel):
+    email : str
+    password : str # Bonus idea : password criterions
+    is_valid : int
+
+    @field_validator("email")
+    @classmethod
+    def email_validator(cls, value):
+        if not isinstance(value, str) or not value.strip():
+            raise TypeError("Provided email is not a string.")
+        if "@" not in value or "." not in value:
+            raise ValueError("This email isn't an email adress with an @ and a domain.")
+        email_regex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        if re.match(email_regex, value) is None:
+            raise ValueError("Provided email is not formatted correctly to point towards a valid domain.")
+        return value
+    
+    @field_validator("password")
+    @classmethod
+    def password_validator(cls, value):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("Password is empty.")
+        return value # Not much here because this would be more accurate to do it on the front end
+
+
 # Non db linked pydantic models
 
 class AnalysisRequest(BaseModel):
     img_path : str
+
+class CredentialsRequest(BaseModel):
+    email : str
+    password : str

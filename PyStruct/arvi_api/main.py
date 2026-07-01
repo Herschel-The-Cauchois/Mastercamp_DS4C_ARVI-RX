@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import shutil
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
@@ -14,11 +13,17 @@ from openai import APIConnectionError, InternalServerError, NotFoundError, BadRe
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from passlib.context import CryptContext
+from hashlib import sha256
+from jose import JWTError, jwt
 
 app = FastAPI(title="EFREI Radiographical Pedagogical Analyzer", version="0.0.1")
 app.mount("/uploads", StaticFiles(directory="../data/uploads"), name="uploads") # Exposes folder so uploads can be displayed on feedback
 UPLOAD_DIR = Path("../data/uploads/")
+SECRET_KEY = "Oooodelalyyyyyy, oooodelalooooooo"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
 
 origins = ["http://localhost:5173"]
 
@@ -181,3 +186,50 @@ async def retrieve_file(path: str):
         raise HTTPException(HTTP.status_code, detail=HTTP.detail)
     except Exception as e: # To handle then all other types
         raise HTTPException(status_code=500, detail="An unknown error has occured : " + str(e))
+    
+@app.put("/users/")
+async def create_user(item: UserCreate, db: Session = Depends(get_db)):
+    try:
+        db_item = dict(**item.model_dump())
+        pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+        prehash = sha256(db_item["password"].encode("utf-8")).hexdigest()
+        db_item["password"] = pwd_context.hash(prehash)
+        db_item = Users(**db_item)
+        db.add(db_item)
+        db.commit()
+        db.refresh(db_item)
+        return db_item
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unknown error has occured : " + str(e))
+
+@app.post("/users/", response_model=AuthResponse)
+async def check_credentials(credentials: CredentialsRequest, db: Session = Depends(get_db)):
+    try:
+        to_check = dict(**credentials.model_dump())
+        query = text("SELECT * FROM users WHERE email = :email")
+        user = db.execute(query, { "email": to_check["email"] })
+        if user.cursor.description is None:
+            raise HTTPException(status_code=500, detail="Query did not return an expected result set.")
+        user = user.first()  # Check if there is a result set, if there's nothing in it
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found.")
+        user = user._mapping # dictionary conversion time
+        pwd_context = CryptContext(schemes=["argon2"], deprecated="auto") # Hash comparison testing time
+        prehash = sha256(to_check["password"].encode("utf-8")).hexdigest()
+        if not pwd_context.verify(prehash,user["password"]):
+            raise HTTPException(status_code=401, detail="Invalid password.")
+        if user["is_valid"] == 0:
+            raise HTTPException(status_code=403, detail="Expired Credentials")
+        try:
+            data = { "id": user["id"]}
+            to_encode = data.copy()
+            expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            to_encode.update({"exp": expire})
+            encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+            return { "token": encoded_jwt }
+        except JWTError as e:
+            raise HTTPException(status_code=500, detail="Caramba ! JWT token encryption went wrong.")
+    except HTTPException as HTTP:
+        raise HTTPException(status_code=HTTP.status_code, detail=HTTP.detail)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An unexpected error has occured : " + str(e))

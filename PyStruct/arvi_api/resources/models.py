@@ -50,6 +50,13 @@ class Evaluations(Base):
     comments = Column(Text)
     created_at = Column(DateTime, default=datetime.now())
 
+class Users(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(64), nullable=False)
+    password = Column(Text, nullable=False)
+    is_valid = Column(Boolean, nullable=False)
+
 Base.metadata.create_all(bind=engine) # This line must always be last in order to be able to create and synchronize db schema
 
 def get_db():

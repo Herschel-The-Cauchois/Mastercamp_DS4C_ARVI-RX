@@ -1,22 +1,24 @@
 <template>
 
-    <table>
-        <thead>
-            <th>Run n°</th>
-            <th>True Label</th>
-            <th>Case Image</th>
-            <th>Model Used</th>
-            <th>Confidence</th>
-            <th>Latency (ms)</th>
-            <th>Correct ?</th>
-            <th>Error Type</th>
-            <th>Comments</th>
-            <th>Action</th>
-        </thead>
-        <tbody>
-            <ReviewRow v-for="element in eval_req" :key="element.id" :review="element" @refreshTable="refresh()"/>
-        </tbody>
-    </table>
+    <section id="review-table">
+        <table>
+            <thead>
+                <tr>Run n°</tr>
+                <tr>True Label</tr>
+                <tr>Case Image</tr>
+                <tr>Model Used</tr>
+                <tr>Confidence</tr>
+                <tr>Latency (ms)</tr>
+                <tr>Correct ?</tr>
+                <tr>Error Type</tr>
+                <tr>Comments</tr>
+                <tr>Action</tr>
+            </thead>
+            <tbody>
+                <ReviewRow v-for="element in eval_req" :key="element.id" :review="element" @refreshTable="refresh()"/>
+            </tbody>
+        </table>
+    </section>
 
 </template>
 

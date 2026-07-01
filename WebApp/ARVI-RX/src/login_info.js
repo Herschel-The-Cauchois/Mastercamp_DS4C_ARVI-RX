@@ -1,4 +1,4 @@
-import VueJwtDecode from 'vue-jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import { defineProps, ref } from 'vue'
 
 var user_login = ref({isLoggedIn: false, username: "None", id: "None"});
@@ -8,7 +8,7 @@ function LoadUserLogin() {
 	let token = localStorage.getItem("user");
 	try {
 		//decode token here and attach to the user object
-		let decoded = VueJwtDecode.decode(token);
+		let decoded = jwtDecode(token);
 		user_login.value = decoded;
 		user_login.value.isLoggedIn = true;
 		console.log('user is logged in')
